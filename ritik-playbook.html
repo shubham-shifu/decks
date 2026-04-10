@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ritik + Me — how we work together</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAFAF8;--fg:#1A1A18;--muted:#636360;
+  --card:#FFFFFF;--border:#E8E8E4;--soft:#F2F2EE;
+  --teal:#0F8A6B;--teal-bg:#E6F5F0;
+  --coral:#D85A30;--coral-bg:#FDF0EB;
+  --amber:#B8750F;--amber-bg:#FDF5E8;
+  --purple:#6B5CE7;--purple-bg:#F0EEFE;
+  --blue:#2356D8;--blue-bg:#EEF2FD;
+  --red:#C42B2B;--red-bg:#FDE9E9;
+  --slide-w:1080px;
+}
+html{font-size:18px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overflow:hidden;height:100vh;width:100vw}
+.deck{position:relative;width:100%;height:100vh;overflow:hidden}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(16px)}
+.slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+.slide-inner{width:min(var(--slide-w),90vw);max-height:90vh;padding:2.5rem 0;overflow-y:auto}
+.slide-inner::-webkit-scrollbar{display:none}
+.slide-num{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;font-weight:300}
+h1{font-size:2.6rem;font-weight:300;line-height:1.15;letter-spacing:-.03em;margin-bottom:.8rem}
+h1 strong{font-weight:600}
+h2{font-size:1.6rem;font-weight:300;line-height:1.25;letter-spacing:-.02em;margin-bottom:.5rem}
+h2 strong{font-weight:600}
+.subtitle{font-size:1rem;color:var(--muted);line-height:1.55;max-width:36em;font-weight:300}
+.cards{display:grid;gap:1rem;margin-top:1.6rem}
+.cards-2{grid-template-columns:1fr 1fr}
+.cards-3{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem}
+.card-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.55rem;font-weight:400}
+.card h3{font-size:1rem;font-weight:500;margin-bottom:.3rem;line-height:1.3}
+.card p{font-size:.88rem;color:var(--muted);line-height:1.5;font-weight:300}
+.card-accent{border-left:3px solid;padding-left:1.2rem}
+.card-accent.teal{border-color:var(--teal)}
+.card-accent.amber{border-color:var(--amber)}
+.card-accent.coral{border-color:var(--coral)}
+.card-accent.purple{border-color:var(--purple)}
+.card-accent.blue{border-color:var(--blue)}
+.card-accent.red{border-color:var(--red)}
+.callout{padding:.8rem 1rem;background:var(--soft);border-radius:10px;margin-top:1rem}
+.callout p{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.5}
+.callout strong{font-weight:500;color:var(--fg)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1.4rem}
+.row-list{display:flex;flex-direction:column;gap:.7rem;margin-top:1.4rem}
+.row-item{display:flex;align-items:baseline;gap:1rem;padding:.85rem 1.1rem;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.row-item .ri-label{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;width:7rem}
+.row-item .ri-text{font-size:.92rem;font-weight:400;color:var(--fg);line-height:1.4}
+.nav{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1rem;z-index:100;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:.5rem .8rem;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.nav button{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:transparent;color:var(--fg);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.nav button:hover{background:var(--soft)}
+.nav button:disabled{opacity:.2;cursor:default}
+.nav button:disabled:hover{background:transparent}
+.nav-dots{display:flex;gap:8px;align-items:center}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:#C4C3BC;transition:all .2s;cursor:pointer;border:none}
+.nav-dot:hover{background:#7A7972}
+.nav-dot.active{background:var(--fg);width:24px;border-radius:10px}
+.slide.active .fade-up{animation:fadeUp .45s ease both}
+.slide.active .fade-up:nth-child(2){animation-delay:.07s}
+.slide.active .fade-up:nth-child(3){animation-delay:.13s}
+.slide.active .fade-up:nth-child(4){animation-delay:.19s}
+.slide.active .fade-up:nth-child(5){animation-delay:.25s}
+.slide.active .fade-up:nth-child(6){animation-delay:.31s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Do / Don't visual */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.2rem}
+.do-list,.dont-list{border-radius:12px;padding:1.1rem 1.3rem}
+.do-list{background:var(--teal-bg);border:1px solid #C0E4D8}
+.dont-list{background:var(--red-bg);border:1px solid #F0C0C0}
+.do-list h4,.dont-list h4{font-size:.78rem;font-weight:500;margin-bottom:.7rem;letter-spacing:.05em;text-transform:uppercase;font-family:'DM Mono',monospace}
+.do-list h4{color:var(--teal)}
+.dont-list h4{color:var(--red)}
+.do-list li,.dont-list li{font-size:.86rem;line-height:1.5;margin-bottom:.45rem;font-weight:300;list-style:none;padding-left:1.2rem;position:relative}
+.do-list li::before{content:"";position:absolute;left:0;top:.45rem;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+.dont-list li::before{content:"";position:absolute;left:0;top:.45rem;width:7px;height:7px;border-radius:50%;background:var(--red)}
+
+/* Git visual */
+.git-cmd{font-family:'DM Mono',monospace;font-size:.74rem;background:#1A1A18;color:#E8E8E4;border-radius:8px;padding:.7rem 1rem;margin-top:.5rem;line-height:1.7}
+.git-cmd .comment{color:#636360}
+.git-cmd .cmd{color:#7DD3FC}
+.git-cmd .flag{color:#FCA5A5}
+.git-cmd .str{color:#86EFAC}
+
+/* Wf mockup */
+.wf{background:#F5F4F0;border:1px solid #DEDED8;border-radius:12px;overflow:hidden;font-size:.8rem;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.wf-bar{background:#ECEAE5;border-bottom:1px solid #DEDED8;padding:.5rem .9rem;display:flex;align-items:center;gap:.5rem}
+.wf-mac{display:flex;gap:5px}
+.wf-mac span{width:9px;height:9px;border-radius:50%;display:block}
+.wf-caption{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-left:.5rem}
+.wf-body{padding:1rem 1.1rem}
+
+/* Daily flow timeline */
+.daily-flow{display:flex;flex-direction:column;gap:0;margin-top:1rem}
+.df-step{display:flex;align-items:stretch;gap:1rem}
+.df-time{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);width:5.5rem;flex-shrink:0;padding-top:.7rem;text-align:right}
+.df-line{width:2px;background:var(--border);position:relative;flex-shrink:0}
+.df-line::before{content:"";position:absolute;top:.65rem;left:-4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+.df-step.active .df-line::before{border-color:var(--blue);background:var(--blue)}
+.df-step.done .df-line::before{border-color:var(--teal);background:var(--teal)}
+.df-content{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;margin-bottom:.6rem;flex:1}
+.df-content h4{font-size:.88rem;font-weight:500;margin-bottom:.15rem}
+.df-content p{font-size:.78rem;color:var(--muted);font-weight:300;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ═══ 0: Title ═══ -->
+<div class="slide active" data-slide="0">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">Shifu Task · collaboration playbook</div>
+    <h1 class="fade-up">How we work together —<br><strong>a simple guide to keep<br>things smooth.</strong></h1>
+    <p class="subtitle fade-up">This covers how we split work, avoid stepping on each other's files, and a few Git basics that will make our lives easier.</p>
+    <div class="cards cards-3 fade-up" style="margin-top:1.6rem">
+      <div class="card card-accent teal">
+        <div class="card-label" style="color:var(--teal)">Your strength</div>
+        <h3>UI/UX design and visual quality</h3>
+        <p>You make things look right. That's the hard part. This playbook keeps that workflow clean.</p>
+      </div>
+      <div class="card card-accent blue">
+        <div class="card-label" style="color:var(--blue)">The goal</div>
+        <h3>Work in parallel without breaking each other's work</h3>
+        <p>Clear rules on who touches what, when. No surprises when we combine our changes.</p>
+      </div>
+      <div class="card card-accent purple">
+        <div class="card-label" style="color:var(--purple)">New skill</div>
+        <h3>Basic Git — just enough to be dangerous</h3>
+        <p>A few commands that make everything smoother. No deep tech knowledge needed.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 1: Two modes of work ═══ -->
+<div class="slide" data-slide="1">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">01 — Two ways we'll work</div>
+    <h2 class="fade-up">New features vs. small tweaks.<br><strong>Different process for each.</strong></h2>
+    <p class="subtitle fade-up">Not everything needs the same workflow. Bigger pieces get a clean separation. Small fixes stay quick.</p>
+    <div class="two-col fade-up">
+      <div>
+        <div class="card" style="border-top:2.5px solid var(--blue);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--blue)">New pages or big components</div>
+          <h3>Build it as a standalone HTML file</h3>
+          <p>Open a fresh HTML file. Design the full UI there — all the CSS, layout, colors, everything. Don't worry about the real app structure. I'll take your design and port it into the actual codebase with proper components and logic.</p>
+        </div>
+        <div class="callout" style="margin-top:.5rem">
+          <p><strong>Why this works:</strong> You get full creative freedom. No merge conflicts. No risk of breaking existing code. I get a clean reference to implement from.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="border-top:2.5px solid var(--teal);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--teal)">Small UI tweaks on existing pages</div>
+          <h3>Edit in the codebase, but on agreed files only</h3>
+          <p>We agree every morning on which files you'll touch today. You edit only those files. I stay out of them until you're done. When you push, I pull your changes and continue from there.</p>
+        </div>
+        <div class="callout" style="margin-top:.5rem">
+          <p><strong>Key rule:</strong> We never edit the same file on the same day. If you need a file I'm working on, we talk about it first.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 2: Our daily routine ═══ -->
+<div class="slide" data-slide="2">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">02 — The daily routine</div>
+    <h2 class="fade-up">A 15-minute morning sync<br><strong>saves hours of merge headaches.</strong></h2>
+    <div class="two-col fade-up" style="gap:1.8rem">
+      <div>
+        <div class="daily-flow">
+          <div class="df-step done">
+            <div class="df-time">Morning</div>
+            <div class="df-line"></div>
+            <div class="df-content">
+              <h4>15-min sync</h4>
+              <p>We agree: "Today you touch these files, I touch these." Quick chat, nothing formal.</p>
+            </div>
+          </div>
+          <div class="df-step active">
+            <div class="df-time">During day</div>
+            <div class="df-line"></div>
+            <div class="df-content">
+              <h4>Work in parallel</h4>
+              <p>You do your UI changes on your files. I do functionality on mine. No overlap.</p>
+            </div>
+          </div>
+          <div class="df-step active">
+            <div class="df-time">When done</div>
+            <div class="df-line"></div>
+            <div class="df-content">
+              <h4>You push, message me</h4>
+              <p>Commit your changes (small commits!), push, and drop me a message. I pull and build on top.</p>
+            </div>
+          </div>
+          <div class="df-step">
+            <div class="df-time">If stuck</div>
+            <div class="df-line"></div>
+            <div class="df-content">
+              <h4>Ask before touching a new file</h4>
+              <p>Need to change a file that wasn't in the plan? Quick message first. Takes 10 seconds, saves an hour.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="do-dont">
+          <div class="do-list">
+            <h4>Do</h4>
+            <ul>
+              <li>Edit only agreed files</li>
+              <li>Commit often (after each meaningful change)</li>
+              <li>Push completed work, not half-done files</li>
+              <li>Message me when you've pushed</li>
+              <li>Ask if you're unsure about a file</li>
+            </ul>
+          </div>
+          <div class="dont-list">
+            <h4>Avoid</h4>
+            <ul>
+              <li>Don't rename or delete components/functions</li>
+              <li>Don't change import lines at the top of files</li>
+              <li>Don't save one giant commit at end of day</li>
+              <li>Don't edit files we didn't agree on</li>
+              <li>Don't restructure folders</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:.8rem">
+          <p><strong>If something looks broken</strong> after your change — stop and message me. Don't try to fix code you don't understand. That's my job. Your job is making it look great.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3: Git basics ═══ -->
+<div class="slide" data-slide="3">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">03 — Git basics you'll need</div>
+    <h2 class="fade-up">Five commands. That's it.<br><strong>Everything else, I'll handle.</strong></h2>
+    <p class="subtitle fade-up">Git tracks every change you make so we can combine our work safely. You only need to know these five things.</p>
+    <div class="two-col fade-up" style="gap:1.8rem">
+      <div>
+        <div class="row-list" style="margin-top:0">
+          <div class="row-item">
+            <span class="ri-label" style="color:var(--teal)">Step 1</span>
+            <span class="ri-text"><strong>Pull latest changes</strong> before you start working. This grabs any updates I've made. Always do this first thing.</span>
+          </div>
+          <div class="row-item">
+            <span class="ri-label" style="color:var(--teal)">Step 2</span>
+            <span class="ri-text"><strong>Make your UI changes.</strong> Work normally in the code. Edit the files we agreed on. Save as you go.</span>
+          </div>
+          <div class="row-item">
+            <span class="ri-label" style="color:var(--teal)">Step 3</span>
+            <span class="ri-text"><strong>Stage your changes.</strong> Tell Git which files to save. You can do this after each meaningful piece, not just at the end.</span>
+          </div>
+          <div class="row-item">
+            <span class="ri-label" style="color:var(--blue)">Step 4</span>
+            <span class="ri-text"><strong>Commit with a short message.</strong> A one-liner that says what you changed. "Updated sidebar layout" is perfect.</span>
+          </div>
+          <div class="row-item">
+            <span class="ri-label" style="color:var(--blue)">Step 5</span>
+            <span class="ri-text"><strong>Push to the remote.</strong> This uploads your work so I can see it. Message me after you push.</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="wf">
+          <div class="wf-bar">
+            <div class="wf-mac">
+              <span style="background:#FF5F57"></span>
+              <span style="background:#FEBC2E"></span>
+              <span style="background:#28C840"></span>
+            </div>
+            <span class="wf-caption">Terminal</span>
+          </div>
+          <div class="wf-body" style="padding:.6rem .8rem">
+            <div class="git-cmd">
+              <span class="comment"># 1. Pull latest (always do this first)</span><br>
+              <span class="cmd">git</span> <span class="flag">pull</span><br><br>
+              <span class="comment"># 2. Make your changes in the editor...</span><br><br>
+              <span class="comment"># 3. Stage changed files</span><br>
+              <span class="cmd">git</span> <span class="flag">add</span> <span class="str">filename.tsx</span><br><br>
+              <span class="comment"># 4. Commit with a message</span><br>
+              <span class="cmd">git</span> <span class="flag">commit</span> <span class="flag">-m</span> <span class="str">"updated sidebar layout"</span><br><br>
+              <span class="comment"># 5. Push to remote</span><br>
+              <span class="cmd">git</span> <span class="flag">push</span><br><br>
+              <span class="comment"># Repeat steps 3-5 for each chunk of work</span><br>
+              <span class="comment"># Small commits &gt; one big commit</span>
+            </div>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:.8rem">
+          <p><strong>Commit often, push when done.</strong> Think of commits like "save points." Each one should be a complete, working change — not a half-finished file. 3–5 commits per day is great. 1 giant commit is what we're moving away from.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 4: Quick reference ═══ -->
+<div class="slide" data-slide="4">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">04 — Quick reference</div>
+    <h1 class="fade-up">The short version —<br><strong>keep this handy.</strong></h1>
+    <div class="cards cards-2 fade-up" style="margin-top:1.4rem">
+      <div class="card card-accent blue">
+        <div class="card-label" style="color:var(--blue)">New feature</div>
+        <h3>Build a standalone HTML/CSS file</h3>
+        <p>Design it as a separate file. No framework, no app structure. I'll port it into the real codebase. You review the visual result and flag differences.</p>
+      </div>
+      <div class="card card-accent teal">
+        <div class="card-label" style="color:var(--teal)">Small tweak</div>
+        <h3>Edit agreed files only, commit often, push when done</h3>
+        <p>Morning sync to agree on files. Work on yours, I work on mine. Small commits. Push and message me. Never the same file, same day.</p>
+      </div>
+    </div>
+    <div class="row-list fade-up" style="margin-top:1.2rem">
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--teal)">Morning</span>
+        <span class="ri-text">15-min sync — agree on who touches which files today.</span>
+      </div>
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--blue)">Git flow</span>
+        <span class="ri-text">Pull first. Work. Stage. Commit with a message. Push. Message me.</span>
+      </div>
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--purple)">Golden rule</span>
+        <span class="ri-text">If something breaks or looks wrong after your change — stop and ask. Don't try to fix unfamiliar code.</span>
+      </div>
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--amber)">Commits</span>
+        <span class="ri-text">Small and often. "Updated header spacing" not "all today's changes." 3–5 per day, not 1.</span>
+      </div>
+    </div>
+    <div class="callout fade-up">
+      <p><strong>This isn't about limiting your work.</strong> It's about making sure your great design work doesn't get lost or broken in a messy merge. These rules protect your effort as much as mine.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<nav class="nav">
+  <button id="prev" onclick="go(-1)" disabled>&larr;</button>
+  <div class="nav-dots" id="dots"></div>
+  <button id="next" onclick="go(1)">&rarr;</button>
+</nav>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+let cur=0;
+slides.forEach((_,i)=>{const d=document.createElement('button');d.className='nav-dot'+(i===0?' active':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d)});
+function goTo(n){slides[cur].classList.remove('active');dotsEl.children[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');dotsEl.children[cur].classList.add('active');document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===slides.length-1}
+function go(dir){if(cur+dir>=0&&cur+dir<slides.length)goTo(cur+dir)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1)});
+</script>
+</body>
+</html>

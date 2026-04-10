@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shifu Task — workflow & proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAFAF8;--fg:#1A1A18;--muted:#636360;
+  --card:#FFFFFF;--border:#E8E8E4;--soft:#F2F2EE;
+  --teal:#0F8A6B;--teal-bg:#E6F5F0;
+  --coral:#D85A30;--coral-bg:#FDF0EB;
+  --amber:#B8750F;--amber-bg:#FDF5E8;
+  --purple:#6B5CE7;--purple-bg:#F0EEFE;
+  --blue:#2356D8;--blue-bg:#EEF2FD;
+  --red:#C42B2B;--red-bg:#FDE9E9;
+  --slide-w:1080px;
+}
+html{font-size:18px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overflow:hidden;height:100vh;width:100vw}
+.deck{position:relative;width:100%;height:100vh;overflow:hidden}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(16px)}
+.slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+.slide-inner{width:min(var(--slide-w),90vw);max-height:90vh;padding:2.5rem 0;overflow-y:auto}
+.slide-inner::-webkit-scrollbar{display:none}
+.slide-num{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;font-weight:300}
+h1{font-size:2.6rem;font-weight:300;line-height:1.15;letter-spacing:-.03em;margin-bottom:.8rem}
+h1 strong{font-weight:600}
+h2{font-size:1.6rem;font-weight:300;line-height:1.25;letter-spacing:-.02em;margin-bottom:.5rem}
+h2 strong{font-weight:600}
+.subtitle{font-size:1rem;color:var(--muted);line-height:1.55;max-width:36em;font-weight:300}
+.cards{display:grid;gap:1rem;margin-top:1.6rem}
+.cards-2{grid-template-columns:1fr 1fr}
+.cards-3{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem}
+.card-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.55rem;font-weight:400}
+.card h3{font-size:1rem;font-weight:500;margin-bottom:.3rem;line-height:1.3}
+.card p{font-size:.88rem;color:var(--muted);line-height:1.5;font-weight:300}
+.card-accent{border-left:3px solid;padding-left:1.2rem}
+.card-accent.teal{border-color:var(--teal)}
+.card-accent.amber{border-color:var(--amber)}
+.card-accent.coral{border-color:var(--coral)}
+.card-accent.purple{border-color:var(--purple)}
+.card-accent.blue{border-color:var(--blue)}
+.card-accent.red{border-color:var(--red)}
+.callout{padding:.8rem 1rem;background:var(--soft);border-radius:10px;margin-top:1rem}
+.callout p{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.5}
+.callout strong{font-weight:500;color:var(--fg)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1.4rem}
+.row-list{display:flex;flex-direction:column;gap:.7rem;margin-top:1.4rem}
+.row-item{display:flex;align-items:baseline;gap:1rem;padding:.85rem 1.1rem;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.row-item .ri-label{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;width:6rem}
+.row-item .ri-text{font-size:.92rem;font-weight:400;color:var(--fg);line-height:1.4}
+.nav{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1rem;z-index:100;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:.5rem .8rem;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.nav button{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:transparent;color:var(--fg);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.nav button:hover{background:var(--soft)}
+.nav button:disabled{opacity:.2;cursor:default}
+.nav button:disabled:hover{background:transparent}
+.nav-dots{display:flex;gap:8px;align-items:center}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:#C4C3BC;transition:all .2s;cursor:pointer;border:none}
+.nav-dot:hover{background:#7A7972}
+.nav-dot.active{background:var(--fg);width:24px;border-radius:10px}
+.slide.active .fade-up{animation:fadeUp .45s ease both}
+.slide.active .fade-up:nth-child(2){animation-delay:.07s}
+.slide.active .fade-up:nth-child(3){animation-delay:.13s}
+.slide.active .fade-up:nth-child(4){animation-delay:.19s}
+.slide.active .fade-up:nth-child(5){animation-delay:.25s}
+.slide.active .fade-up:nth-child(6){animation-delay:.31s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:0;margin-top:1.4rem;flex-wrap:wrap}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.82rem;font-weight:400;line-height:1.35;max-width:11rem;text-align:center}
+.flow-step.problem{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.flow-arrow{font-size:.9rem;color:#C4C3BC;padding:0 .4rem;flex-shrink:0}
+.flow-step small{display:block;font-size:.68rem;color:var(--muted);font-weight:300;margin-top:.2rem}
+.flow-step.problem small{color:var(--red)}
+
+/* Timeline */
+.tl-item{display:flex;gap:1rem;align-items:flex-start;padding:.6rem 0}
+.tl-dot{width:8px;height:8px;border-radius:50%;margin-top:.35rem;flex-shrink:0}
+.tl-content{font-size:.88rem;line-height:1.5}
+.tl-content strong{font-weight:500}
+.tl-content span{color:var(--muted);font-weight:300}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ═══ 0: Title ═══ -->
+<div class="slide active" data-slide="0">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">Shifu Task · workflow · a proposal</div>
+    <h1 class="fade-up">Shifu Task —<br><strong>where things are slowing<br>down and how to fix it.</strong></h1>
+    <p class="subtitle fade-up">This covers the current workflow friction between engineering and design, how I'm planning to resolve it, and one ask.</p>
+    <div class="cards cards-3 fade-up" style="margin-top:1.6rem">
+      <div class="card card-accent amber">
+        <div class="card-label" style="color:var(--amber)">The friction</div>
+        <h3>UI handoff and merging is eating time</h3>
+        <p>Ritik's UI changes and my code live on separate branches. Merging them is manual, slow, and breaks things.</p>
+      </div>
+      <div class="card card-accent red">
+        <div class="card-label" style="color:var(--red)">The gap</div>
+        <h3>No structured workflow between us</h3>
+        <p>No file boundaries, no daily sync, no Git knowledge on the design side. Every merge is a gamble.</p>
+      </div>
+      <div class="card card-accent blue">
+        <div class="card-label" style="color:var(--blue)">The proposal</div>
+        <h3>A playbook for collaboration + one ask</h3>
+        <p>Structured daily workflow with Ritik, file ownership rules, and a senior engineer session for Claude Code.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 1: Current workflow ═══ -->
+<div class="slide" data-slide="1">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">01 — The current workflow</div>
+    <h2 class="fade-up">Every UI change goes through<br><strong>a manual merge cycle.</strong></h2>
+    <p class="subtitle fade-up">Here's what happens each time Ritik delivers UI changes. The merge step is where most time is lost.</p>
+    <div class="flow fade-up">
+      <div class="flow-step">I create a branch for Ritik<small>Setup</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Ritik makes UI changes using Claude<small>Design work</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step problem">Can't auto-merge — conflicts everywhere<small>Bottleneck</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step problem">I manually reconcile both branches with Claude<small>Time sink</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">I build functionality on the merged result<small>Actual work</small></div>
+    </div>
+    <div class="cards cards-3 fade-up" style="margin-top:1.4rem">
+      <div class="card card-accent amber">
+        <div class="card-label" style="color:var(--amber)">No file boundaries</div>
+        <h3>We edit the same files on the same day</h3>
+        <p>No agreement on who touches what. Merge conflicts are guaranteed, not occasional.</p>
+      </div>
+      <div class="card card-accent amber">
+        <div class="card-label" style="color:var(--amber)">One giant commit</div>
+        <h3>Ritik doesn't know Git</h3>
+        <p>All his changes come as a single large commit. Hard to review, hard to merge partially, impossible to roll back one piece.</p>
+      </div>
+      <div class="card card-accent amber">
+        <div class="card-label" style="color:var(--amber)">Sequential blocking</div>
+        <h3>I can't start until the merge is clean</h3>
+        <p>Functionality work is blocked until I've resolved every conflict. The merge step gates everything downstream.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 2: Proposed workflow ═══ -->
+<div class="slide" data-slide="2">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">02 — The proposed workflow</div>
+    <h2 class="fade-up">A daily sync, clear file ownership,<br><strong>and a playbook for Ritik.</strong></h2>
+    <p class="subtitle fade-up">I'm creating a separate playbook deck for Ritik that covers this workflow and basic Git. Here's the plan.</p>
+    <div class="two-col fade-up">
+      <div>
+        <div class="card" style="border-top:2.5px solid var(--blue);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--blue)">New features</div>
+          <h3>Ritik builds standalone HTML/CSS first</h3>
+          <p>For any new page or component, Ritik designs it as a standalone HTML file — no framework, no imports, just pure UI. I port it into the real app with proper structure. Zero merge conflicts.</p>
+        </div>
+        <div class="card" style="border-top:2.5px solid var(--teal);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--teal)">UI tweaks</div>
+          <h3>File-level ownership, agreed daily</h3>
+          <p>15-min morning sync. We agree on which files Ritik owns today and which are mine. No parallel edits on the same file. He pushes when done, I pull and build on top.</p>
+        </div>
+        <div style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.1rem .2rem;line-height:1.6">
+          <span style="color:var(--fg);font-weight:400">Result —</span> Merge conflicts drop to near zero. Both of us work in parallel without blocking each other.
+        </div>
+      </div>
+      <div>
+        <div class="card" style="border-top:2.5px solid var(--purple);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--purple)">Git basics for Ritik</div>
+          <h3>Small commits, proper messages, branch hygiene</h3>
+          <p>Right now everything comes as one giant commit. I'll teach Ritik basic Git: commit often, write short messages, push completed work only. This makes reviews and rollbacks possible.</p>
+        </div>
+        <div class="card" style="border-top:2.5px solid var(--coral);margin-bottom:.8rem">
+          <div class="card-label" style="color:var(--coral)">My own growth</div>
+          <h3>Learning UI/UX design to reduce the handoff</h3>
+          <p>Long-term, I want to handle end-to-end: frontend, backend, design, and infra. I'm learning from Ritik's work. Over time, the handoff friction naturally decreases.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3: Claude Code + planning ═══ -->
+<div class="slide" data-slide="3">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">03 — Better tooling, better planning</div>
+    <h2 class="fade-up">Claude Code has potential I'm not using yet.<br><strong>And I need to plan work, not just react to it.</strong></h2>
+    <div class="cards cards-2 fade-up" style="margin-top:1.2rem">
+      <div class="card card-accent purple">
+        <div class="card-label" style="color:var(--purple)">Claude Code usage</div>
+        <h3>I have the tool but not the workflow</h3>
+        <p>I'm using Claude Max but spending too much time on back-and-forth prompting. A session with someone who uses Claude Code daily — proper prompting patterns, planning before prompting, using agents for parallel work — would make a real difference.</p>
+      </div>
+      <div class="card card-accent purple">
+        <div class="card-label" style="color:var(--purple)">Planning gaps</div>
+        <h3>I'm saying yes to everything without scoping</h3>
+        <p>First month energy. I'm taking on every task without pushing back or negotiating timelines. This leads to reactive work instead of planned work. I need to scope before committing.</p>
+      </div>
+    </div>
+    <div class="callout fade-up">
+      <p><strong>The ask:</strong> A 1–2 session pairing with a senior engineer who uses Claude Code in a similar workflow — building full products end-to-end. Not a course. Just someone who can look at how I'm working and point out what I'm doing the hard way.</p>
+    </div>
+    <div class="callout fade-up" style="margin-top:.6rem">
+      <p><strong>On saying no:</strong> I'm not going to start rejecting work. But I'll start giving honest estimates and flagging when something will push other things back. That's better for everyone than quiet overcommitment.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 4: Summary ═══ -->
+<div class="slide" data-slide="4">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">04 — Summary</div>
+    <h1 class="fade-up">Three changes, one ask,<br><strong>and things move faster.</strong></h1>
+    <p class="subtitle fade-up" style="margin-top:.6rem">None of this is about working harder. It's about removing the friction so the same effort goes further.</p>
+    <div class="cards cards-2 fade-up" style="margin-top:1.4rem">
+      <div class="card card-accent amber">
+        <div class="card-label" style="color:var(--amber)">Today</div>
+        <h3>Reactive workflow, manual merges, unstructured handoff</h3>
+        <p>UI changes come as one big commit on a separate branch. Merging is manual and time-consuming. No daily planning between me and Ritik. Claude Code is underutilized.</p>
+      </div>
+      <div class="card card-accent blue">
+        <div class="card-label" style="color:var(--blue)">The plan</div>
+        <h3>Structured collaboration, better tooling, honest scoping</h3>
+        <p>Daily sync with Ritik. File ownership rules. Standalone HTML for new features. Git basics for the design side. Senior engineer session for Claude Code workflow.</p>
+      </div>
+    </div>
+    <div class="row-list fade-up" style="margin-top:1.2rem">
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--teal)">Change 1</span>
+        <span class="ri-text">Playbook for Ritik collaboration — daily sync, file ownership, standalone HTML for new features, Git basics.</span>
+      </div>
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--blue)">Change 2</span>
+        <span class="ri-text">Scope before committing — give honest estimates, flag trade-offs, stop quietly overloading.</span>
+      </div>
+      <div class="row-item">
+        <span class="ri-label" style="color:var(--purple)">The ask</span>
+        <span class="ri-text">1–2 sessions with a senior engineer who uses Claude Code end-to-end. That's it.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<nav class="nav">
+  <button id="prev" onclick="go(-1)" disabled>&larr;</button>
+  <div class="nav-dots" id="dots"></div>
+  <button id="next" onclick="go(1)">&rarr;</button>
+</nav>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+let cur=0;
+slides.forEach((_,i)=>{const d=document.createElement('button');d.className='nav-dot'+(i===0?' active':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d)});
+function goTo(n){slides[cur].classList.remove('active');dotsEl.children[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');dotsEl.children[cur].classList.add('active');document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===slides.length-1}
+function go(dir){if(cur+dir>=0&&cur+dir<slides.length)goTo(cur+dir)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1)});
+</script>
+</body>
+</html>
