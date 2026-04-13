@@ -84,6 +84,36 @@ h2 strong{font-weight:600}
 .tl-content{font-size:.88rem;line-height:1.5}
 .tl-content strong{font-weight:500}
 .tl-content span{color:var(--muted);font-weight:300}
+@media(max-width:768px){
+  html{font-size:16px}
+  body{overflow-y:auto;height:auto}
+  .deck{height:auto;overflow:visible}
+  .slide{position:relative;opacity:1;pointer-events:auto;transform:none;transition:none;display:none;height:auto}
+  .slide.active{display:flex}
+  .slide-inner{padding:1.5rem 1rem;max-height:none}
+  h1{font-size:1.8rem}
+  h2{font-size:1.3rem}
+  .cards-2,.cards-3{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr;gap:1.2rem}
+  .flow{flex-direction:column;align-items:stretch}
+  .flow-step{max-width:none}
+  .flow-arrow{transform:rotate(90deg);text-align:center;padding:.2rem 0}
+  .nav{padding:.4rem .6rem;gap:.6rem}
+  .nav-dots{gap:5px}
+  .nav-dot{width:8px;height:8px}
+  .nav-dot.active{width:18px}
+  .row-item{flex-direction:column;gap:.3rem}
+  .row-item .ri-label{width:auto}
+}
+@media(max-width:480px){
+  html{font-size:15px}
+  h1{font-size:1.5rem}
+  h2{font-size:1.15rem}
+  .subtitle{font-size:.88rem}
+  .card{padding:1rem 1.1rem}
+  .slide-inner{padding:1.2rem .8rem}
+  .nav button{width:32px;height:32px;font-size:.85rem}
+}
 </style>
 </head>
 <body>

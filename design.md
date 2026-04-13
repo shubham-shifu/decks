@@ -507,3 +507,61 @@ document.addEventListener('keydown', e => {
 5. **Minimal shadows** — only the nav bar and wireframes have shadows. Cards use borders, not elevation.
 6. **Subtle animation** — fade-up with 8px translateY, staggered at 70ms intervals. Nothing bounces or overshoots.
 7. **Single-file HTML** — everything (CSS, JS, content) lives in one self-contained HTML file. No external dependencies beyond Google Fonts.
+8. **Always mobile responsive** — every deck MUST be mobile responsive. Use the breakpoints and rules below.
+
+---
+
+## 10. Mobile Responsiveness (REQUIRED)
+
+Every deck must include these responsive styles. All grids collapse to single column on mobile. Typography scales down. Navigation remains usable on touch.
+
+### Breakpoints
+
+| Breakpoint | Target |
+|-----------|--------|
+| `max-width: 768px` | Tablets and small screens |
+| `max-width: 480px` | Mobile phones |
+
+### Responsive CSS (copy into every deck)
+
+```css
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  html{font-size:16px}
+  .slide-inner{padding:1.5rem 1rem}
+  h1{font-size:1.8rem}
+  h2{font-size:1.3rem}
+  .cards-2,.cards-3{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr;gap:1.2rem}
+  .flow{flex-direction:column;align-items:stretch}
+  .flow-arrow{transform:rotate(90deg);text-align:center;padding:.2rem 0}
+  .nav{padding:.4rem .6rem;gap:.6rem}
+  .nav-dots{gap:5px}
+  .nav-dot{width:8px;height:8px}
+  .nav-dot.active{width:18px}
+  .ec-table{font-size:.75rem}
+  .ec-table th,.ec-table td{padding:.4rem .5rem}
+  .do-dont{grid-template-columns:1fr}
+  .row-item{flex-direction:column;gap:.3rem}
+  .row-item .ri-label{width:auto}
+  .q-card{flex-direction:column;gap:.4rem}
+}
+@media(max-width:480px){
+  html{font-size:15px}
+  h1{font-size:1.5rem}
+  h2{font-size:1.15rem}
+  .subtitle{font-size:.88rem}
+  .card{padding:1rem 1.1rem}
+  .slide-inner{padding:1.2rem .8rem}
+  .nav button{width:32px;height:32px;font-size:.85rem}
+}
+```
+
+### Rules
+
+1. All multi-column grids (`.cards-2`, `.cards-3`, `.two-col`) collapse to `1fr` (single column) at 768px
+2. Font sizes scale down: h1 from 2.6rem → 1.8rem → 1.5rem, h2 from 1.6rem → 1.3rem → 1.15rem
+3. Row items (`.row-item`) stack vertically — label on top, text below
+4. Flow diagrams go vertical with rotated arrows
+5. Navigation stays fixed at bottom, dots shrink slightly
+6. Touch targets remain at least 32px for accessibility

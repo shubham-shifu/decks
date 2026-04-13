@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shifu Tasks — Intercommunication Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAFAF8;--fg:#1A1A18;--muted:#636360;
+  --card:#FFFFFF;--border:#E8E8E4;--soft:#F2F2EE;
+  --teal:#0F8A6B;--teal-bg:#E6F5F0;
+  --coral:#D85A30;--coral-bg:#FDF0EB;
+  --amber:#B8750F;--amber-bg:#FDF5E8;
+  --purple:#6B5CE7;--purple-bg:#F0EEFE;
+  --blue:#2356D8;--blue-bg:#EEF2FD;
+  --red:#C42B2B;--red-bg:#FDE9E9;
+  --slide-w:1080px;
+}
+html{font-size:18px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overflow:hidden;height:100vh;width:100vw}
+.deck{position:relative;width:100%;height:100vh;overflow:hidden}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(16px)}
+.slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+.slide-inner{width:min(var(--slide-w),90vw);max-height:90vh;padding:2.5rem 0;overflow-y:auto}
+.slide-inner::-webkit-scrollbar{display:none}
+.slide-num{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;font-weight:300}
+h1{font-size:2.6rem;font-weight:300;line-height:1.15;letter-spacing:-.03em;margin-bottom:.8rem}
+h1 strong{font-weight:600}
+h2{font-size:1.6rem;font-weight:300;line-height:1.25;letter-spacing:-.02em;margin-bottom:.5rem}
+h2 strong{font-weight:600}
+.subtitle{font-size:1rem;color:var(--muted);line-height:1.55;max-width:36em;font-weight:300}
+.cards{display:grid;gap:1rem;margin-top:1.6rem}
+.cards-2{grid-template-columns:1fr 1fr}
+.cards-3{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem}
+.card-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.55rem;font-weight:400}
+.card h3{font-size:1rem;font-weight:500;margin-bottom:.3rem;line-height:1.3}
+.card p{font-size:.88rem;color:var(--muted);line-height:1.5;font-weight:300}
+.card-accent{border-left:3px solid;padding-left:1.2rem}
+.card-accent.teal{border-color:var(--teal)}
+.card-accent.amber{border-color:var(--amber)}
+.card-accent.coral{border-color:var(--coral)}
+.card-accent.purple{border-color:var(--purple)}
+.card-accent.blue{border-color:var(--blue)}
+.card-accent.red{border-color:var(--red)}
+.callout{padding:.8rem 1rem;background:var(--soft);border-radius:10px;margin-top:1rem}
+.callout p{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.5}
+.callout strong{font-weight:500;color:var(--fg)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1.4rem}
+.row-list{display:flex;flex-direction:column;gap:.7rem;margin-top:1.4rem}
+.row-item{display:flex;align-items:baseline;gap:1rem;padding:.85rem 1.1rem;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.row-item .ri-label{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;width:7rem}
+.row-item .ri-text{font-size:.92rem;font-weight:400;color:var(--fg);line-height:1.4}
+.nav{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1rem;z-index:100;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:.5rem .8rem;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.nav button{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:transparent;color:var(--fg);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.nav button:hover{background:var(--soft)}
+.nav button:disabled{opacity:.2;cursor:default}
+.nav button:disabled:hover{background:transparent}
+.nav-dots{display:flex;gap:8px;align-items:center}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:#C4C3BC;transition:all .2s;cursor:pointer;border:none}
+.nav-dot:hover{background:#7A7972}
+.nav-dot.active{background:var(--fg);width:24px;border-radius:10px}
+.slide.active .fade-up{animation:fadeUp .45s ease both}
+.slide.active .fade-up:nth-child(2){animation-delay:.07s}
+.slide.active .fade-up:nth-child(3){animation-delay:.13s}
+.slide.active .fade-up:nth-child(4){animation-delay:.19s}
+.slide.active .fade-up:nth-child(5){animation-delay:.25s}
+.slide.active .fade-up:nth-child(6){animation-delay:.31s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Wireframe */
+.wf{background:#F5F4F0;border:1px solid #DEDED8;border-radius:12px;overflow:hidden;font-size:.8rem;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.wf-bar{background:#ECEAE5;border-bottom:1px solid #DEDED8;padding:.5rem .9rem;display:flex;align-items:center;gap:.5rem}
+.wf-mac{display:flex;gap:5px}
+.wf-mac span{width:9px;height:9px;border-radius:50%;display:block}
+.wf-caption{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-left:.5rem}
+.wf-body{padding:1rem 1.1rem}
+.wf-divider{height:1px;background:var(--border);margin:.7rem 0}
+
+/* Sync table */
+.sync-grid{display:grid;grid-template-columns:1fr auto auto;gap:0;margin-top:.8rem;font-size:.8rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+.sync-grid .sg-header{background:var(--soft);font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.5rem .8rem;font-weight:400}
+.sync-grid .sg-cell{padding:.45rem .8rem;border-top:1px solid var(--border);display:flex;align-items:center}
+.sg-yes{color:var(--teal);font-weight:500;font-size:.78rem}
+.sg-no{color:var(--red);font-weight:400;font-size:.78rem}
+.sg-partial{color:var(--amber);font-weight:400;font-size:.78rem}
+
+/* Pill */
+.pill{font-family:'DM Mono',monospace;font-size:.58rem;padding:2px 7px;border-radius:4px;letter-spacing:.05em;font-weight:400;white-space:nowrap}
+.pill-teal{background:var(--teal-bg);color:var(--teal)}
+.pill-amber{background:var(--amber-bg);color:var(--amber)}
+.pill-red{background:var(--red-bg);color:var(--red)}
+.pill-blue{background:var(--blue-bg);color:var(--blue)}
+.pill-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* Arch diagram */
+.arch{font-family:'DM Mono',monospace;font-size:.7rem;line-height:1.6;background:#1A1A18;color:#E8E8E4;border-radius:10px;padding:.9rem 1.1rem;margin-top:.8rem;overflow-x:auto;white-space:pre}
+.arch .hl-teal{color:#6EE7B7}
+.arch .hl-blue{color:#7DD3FC}
+.arch .hl-amber{color:#FCD34D}
+.arch .hl-red{color:#FCA5A5}
+.arch .hl-muted{color:#636360}
+.arch .hl-purple{color:#C4B5FD}
+
+/* Question card */
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.8rem 1.1rem;margin-bottom:.55rem}
+.q-card .q-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem}
+.q-card .q-num{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;color:var(--muted);background:var(--soft);border-radius:4px;padding:2px 6px}
+.q-card .q-title{font-size:.88rem;font-weight:500}
+.q-card .q-options{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.5;padding-left:.1rem}
+
+/* Responsive */
+@media(max-width:768px){
+  html{font-size:16px}
+  body{overflow-y:auto;height:auto}
+  .deck{height:auto;overflow:visible}
+  .slide{position:relative;opacity:1;pointer-events:auto;transform:none;transition:none;display:none;height:auto}
+  .slide.active{display:flex}
+  .slide-inner{padding:1.5rem 1rem;max-height:none}
+  h1{font-size:1.8rem}
+  h2{font-size:1.3rem}
+  .cards-2,.cards-3{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr;gap:1.2rem}
+  .nav{padding:.4rem .6rem;gap:.6rem}
+  .nav-dots{gap:5px}
+  .nav-dot{width:8px;height:8px}
+  .nav-dot.active{width:18px}
+  .row-item{flex-direction:column;gap:.3rem}
+  .row-item .ri-label{width:auto}
+  .arch{font-size:.58rem;padding:.6rem .8rem}
+  .sync-grid{font-size:.72rem}
+}
+@media(max-width:480px){
+  html{font-size:15px}
+  h1{font-size:1.5rem}
+  h2{font-size:1.15rem}
+  .subtitle{font-size:.88rem}
+  .card{padding:1rem 1.1rem}
+  .slide-inner{padding:1.2rem .8rem}
+  .nav button{width:32px;height:32px;font-size:.85rem}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ═══ 0: Title ═══ -->
+<div class="slide active" data-slide="0">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">Shifu Tasks · architecture review · pre-read</div>
+    <h1 class="fade-up">Cross-workspace tasks —<br><strong>the data model decision<br>we need to make.</strong></h1>
+    <p class="subtitle fade-up">Shifu Tasks lets admins assign tasks across workspaces. The current two-task mirror system works for basic sync but breaks down when teams need shared comments, subtasks, and descriptions. This deck covers the problem and three approaches.</p>
+    <div class="cards cards-3 fade-up" style="margin-top:1.6rem">
+      <div class="card card-accent teal">
+        <div class="card-label" style="color:var(--teal)">What works</div>
+        <h3>Title, status, priority, due date, assignee all sync</h3>
+        <p>Basic task metadata syncs bidirectionally between source and mirror tasks via LinkedTask.</p>
+      </div>
+      <div class="card card-accent red">
+        <div class="card-label" style="color:var(--red)">What's broken</div>
+        <h3>Comments, subtasks, description are completely isolated</h3>
+        <p>Each workspace has its own copy. Teams can't collaborate — they're talking to themselves.</p>
+      </div>
+      <div class="card card-accent blue">
+        <div class="card-label" style="color:var(--blue)">The decision</div>
+        <h3>Three approaches — need your take on which to build</h3>
+        <p>Query across linked tasks, single task with placement table, or a hybrid. Each has real tradeoffs.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 1: Current architecture ═══ -->
+<div class="slide" data-slide="1">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">01 — How it works today</div>
+    <h2 class="fade-up">Two tasks, linked by a record.<br><strong>Metadata syncs. Everything else is isolated.</strong></h2>
+    <div class="two-col fade-up" style="gap:1.6rem">
+      <div>
+        <div class="arch"><span class="hl-muted">┌─── WORKSPACE A ───────────┐   ┌─── WORKSPACE B ───────────┐</span>
+│                            │   │                            │
+│  Project: <span class="hl-blue">"Product"</span>        │   │  <span class="hl-red">(no project)</span>              │
+│    Section: <span class="hl-blue">"To Do"</span>        │   │                            │
+│                            │   │                            │
+│    ┌──────────────┐        │   │    ┌──────────────┐        │
+│    │ <span class="hl-teal">SOURCE TASK</span>  │◄──<span class="hl-amber">LinkedTask</span>──►│ <span class="hl-purple">MIRROR TASK</span>  │        │
+│    │              │        │   │    │              │        │
+│    │ title    <span class="hl-teal">━━━━━━sync━━━━━━━</span> title       │        │
+│    │ status   <span class="hl-teal">━━━━━━sync━━━━━━━</span> status      │        │
+│    │ priority <span class="hl-teal">━━━━━━sync━━━━━━━</span> priority    │        │
+│    │ dueDate  <span class="hl-teal">━━━━━━sync━━━━━━━</span> dueDate     │        │
+│    │              │        │   │    │              │        │
+│    │ <span class="hl-red">comments[]</span>  │  <span class="hl-red">NOT</span>   │   │    │ <span class="hl-red">comments[]</span>  │        │
+│    │ <span class="hl-red">subtasks[]</span>  │ <span class="hl-red">SYNCED</span> │   │    │ <span class="hl-red">subtasks[]</span>  │        │
+│    │ <span class="hl-red">description</span> │        │   │    │ <span class="hl-red">description</span> │        │
+│    └──────────────┘        │   │    └──────────────┘        │
+└────────────────────────────┘   └────────────────────────────┘</div>
+        <div class="callout" style="margin-top:.6rem">
+          <p><strong>The real-world problem:</strong> Nisha (Shifu Foundation) assigns a video task to Vedh (Curious Men Films). She writes requirements, adds milestones as subtasks, comments with updates. Vedh sees none of it. He has his own empty task with just the title.</p>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.82rem;font-weight:500;margin-bottom:.5rem">What syncs today</div>
+        <div class="sync-grid">
+          <div class="sg-header">Field</div>
+          <div class="sg-header">Syncs?</div>
+          <div class="sg-header">Direction</div>
+          <div class="sg-cell">Title</div>
+          <div class="sg-cell"><span class="sg-yes">Yes</span></div>
+          <div class="sg-cell"><span class="pill pill-teal">both ways</span></div>
+          <div class="sg-cell">Status</div>
+          <div class="sg-cell"><span class="sg-yes">Yes</span></div>
+          <div class="sg-cell"><span class="pill pill-teal">both ways</span></div>
+          <div class="sg-cell">Priority</div>
+          <div class="sg-cell"><span class="sg-yes">Yes</span></div>
+          <div class="sg-cell"><span class="pill pill-teal">both ways</span></div>
+          <div class="sg-cell">Due date</div>
+          <div class="sg-cell"><span class="sg-yes">Yes</span></div>
+          <div class="sg-cell"><span class="pill pill-teal">both ways</span></div>
+          <div class="sg-cell">Assignee</div>
+          <div class="sg-cell"><span class="sg-yes">Yes</span></div>
+          <div class="sg-cell"><span class="pill pill-teal">both ways</span></div>
+          <div class="sg-cell">Comments</div>
+          <div class="sg-cell"><span class="sg-no">No</span></div>
+          <div class="sg-cell"><span class="pill pill-red">isolated</span></div>
+          <div class="sg-cell">Subtasks</div>
+          <div class="sg-cell"><span class="sg-no">No</span></div>
+          <div class="sg-cell"><span class="pill pill-red">isolated</span></div>
+          <div class="sg-cell">Description</div>
+          <div class="sg-cell"><span class="sg-no">No</span></div>
+          <div class="sg-cell"><span class="pill pill-red">isolated</span></div>
+          <div class="sg-cell">Project/Section</div>
+          <div class="sg-cell"><span class="sg-partial">N/A</span></div>
+          <div class="sg-cell"><span class="pill pill-amber">per workspace</span></div>
+        </div>
+        <div style="margin-top:1rem;font-size:.82rem;font-weight:500;margin-bottom:.5rem">Tech stack</div>
+        <div class="row-list" style="margin-top:.4rem;gap:.4rem">
+          <div class="row-item" style="padding:.5rem .8rem">
+            <span class="ri-label" style="width:5rem">Stack</span>
+            <span class="ri-text" style="font-size:.82rem">Next.js 16, Prisma, PostgreSQL (AWS RDS), Zustand, TipTap</span>
+          </div>
+          <div class="row-item" style="padding:.5rem .8rem">
+            <span class="ri-label" style="width:5rem">Infra</span>
+            <span class="ri-text" style="font-size:.82rem">EC2 (ap-south-1), S3, cookie-based auth</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 2: Three options ═══ -->
+<div class="slide" data-slide="2">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">02 — Three approaches</div>
+    <h2 class="fade-up">Each solves the sharing problem differently.<br><strong>Each has real tradeoffs.</strong></h2>
+    <div class="cards cards-3 fade-up" style="margin-top:1rem">
+      <div class="card" style="border-top:2.5px solid var(--blue)">
+        <div class="card-label" style="color:var(--blue)">Option A</div>
+        <h3>Keep two tasks, query across the link</h3>
+        <p>When loading comments/subtasks for a cross-workspace task, find the LinkedTask record, fetch from both task IDs, merge by timestamp.</p>
+        <div style="margin-top:.8rem">
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Minimal schema changes. No migration.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Existing queries mostly untouched.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Query complexity doubles for cross-workspace tasks.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Edit/delete must cascade to both copies.</span></div>
+          <div style="font-size:.78rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Mention scope unclear — whose members show?</span></div>
+        </div>
+      </div>
+      <div class="card" style="border-top:2.5px solid var(--purple)">
+        <div class="card-label" style="color:var(--purple)">Option B</div>
+        <h3>One task + TaskPlacement table</h3>
+        <p>Single task in DB. Each workspace gets a TaskPlacement record with their own projectId, sectionId, and position.</p>
+        <div style="margin-top:.8rem">
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">One source of truth. No sync needed.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Comments, subtasks, description shared naturally.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Big refactor — every query joins through TaskPlacement.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Access control needs full rework.</span></div>
+          <div style="font-size:.78rem"><span class="pill pill-red">con</span> <span style="color:var(--muted);font-weight:300">Migration of all existing tasks + placements.</span></div>
+        </div>
+      </div>
+      <div class="card" style="border-top:2.5px solid var(--amber)">
+        <div class="card-label" style="color:var(--amber)">Option C — Hybrid</div>
+        <h3>One task, source keeps projectId, receiver gets TaskPlacement</h3>
+        <p>Source task uses normal Task.projectId. Receiving workspace gets a TaskPlacement record for their own project/section placement.</p>
+        <div style="margin-top:.8rem">
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Minimal disruption to existing queries.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Receiver can organize in their project.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-teal">pro</span> <span style="color:var(--muted);font-weight:300">Shared data naturally — one task.</span></div>
+          <div style="font-size:.78rem;margin-bottom:.35rem"><span class="pill pill-amber">con</span> <span style="color:var(--muted);font-weight:300">Two paths for placement — source vs receiver.</span></div>
+          <div style="font-size:.78rem"><span class="pill pill-amber">con</span> <span style="color:var(--muted);font-weight:300">Mention/assignment scope still needs solving.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout fade-up">
+      <p><strong>The core tradeoff:</strong> Two tasks = workspace isolation but no shared data. One task = shared data but can't be in two projects. The hybrid tries to get both — one shared task for data, placement records for per-workspace organization.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3: Open questions ═══ -->
+<div class="slide" data-slide="3">
+  <div class="slide-inner">
+    <div class="slide-num fade-up">03 — Questions for discussion</div>
+    <h2 class="fade-up">Eight decisions that shape<br><strong>which approach we pick.</strong></h2>
+    <p class="subtitle fade-up">These are the unresolved design questions. The full architecture doc covers each in detail — this is the summary for our conversation.</p>
+    <div class="two-col fade-up" style="gap:1.4rem;margin-top:1rem">
+      <div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q1</span>
+            <span class="q-title">Option A vs B vs C?</span>
+          </div>
+          <div class="q-options">Which approach for sharing comments, subtasks, and description across workspaces?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q2</span>
+            <span class="q-title">Mirror task placement</span>
+          </div>
+          <div class="q-options">Receiver MUST organize in their own project/section. Which approach handles this cleanly?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q3</span>
+            <span class="q-title">Mention scope</span>
+          </div>
+          <div class="q-options">Shared comments — whose members appear in @mention dropdown? Current user's workspace, both workspaces, or only task participants?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q4</span>
+            <span class="q-title">Notification deduplication</span>
+          </div>
+          <div class="q-options">Bidirectional sync can cause notification loops. Flag synced updates? Queue with dedup keys? Cooldown per task/user pair?</div>
+        </div>
+      </div>
+      <div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q5</span>
+            <span class="q-title">Description ownership</span>
+          </div>
+          <div class="q-options">If shared, how to handle simultaneous edits? Last-write-wins, locking, or separate sections (requirements vs notes)?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q6</span>
+            <span class="q-title">Subtask assignee scope</span>
+          </div>
+          <div class="q-options">Can Workspace A assign a subtask to Workspace B's members? Or only their own?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q7</span>
+            <span class="q-title">Cascade on deletion</span>
+          </div>
+          <div class="q-options">Source task deleted — remove receiver's access, or soft-delete their placement? What about orphaned comments?</div>
+        </div>
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-num">Q8</span>
+            <span class="q-title">Performance at scale</span>
+          </div>
+          <div class="q-options">Option A queries two task IDs for comments. Option B/C queries one. At what scale does this matter for us?</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout fade-up">
+      <p><strong>Full architecture doc attached.</strong> This deck is the summary — the doc has the data model, code references, and detailed tradeoff analysis for each question.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<nav class="nav">
+  <button id="prev" onclick="go(-1)" disabled>&larr;</button>
+  <div class="nav-dots" id="dots"></div>
+  <button id="next" onclick="go(1)">&rarr;</button>
+</nav>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+let cur=0;
+slides.forEach((_,i)=>{const d=document.createElement('button');d.className='nav-dot'+(i===0?' active':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d)});
+function goTo(n){slides[cur].classList.remove('active');dotsEl.children[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');dotsEl.children[cur].classList.add('active');document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===slides.length-1}
+function go(dir){if(cur+dir>=0&&cur+dir<slides.length)goTo(cur+dir)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1)});
+</script>
+</body>
+</html>
